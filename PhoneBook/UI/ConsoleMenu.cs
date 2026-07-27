@@ -1,4 +1,6 @@
-﻿using Spectre.Console;
+﻿using PhoneBook.Controller;
+using PhoneBook.Services;
+using Spectre.Console;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,6 +10,7 @@ namespace PhoneBook.UI
 {
     public class ConsoleMenu
     {
+        private readonly ContactController _contactController;
         private enum MenuOptions
         {
             InsertContact,
@@ -18,7 +21,10 @@ namespace PhoneBook.UI
             Exit
         }
 
-        public ConsoleMenu() { }
+        public ConsoleMenu()
+        {
+            _contactController = new ContactController();
+        }
 
         public void OnStart()
         {
@@ -36,45 +42,25 @@ namespace PhoneBook.UI
                 switch (choice)
                 {
                     case MenuOptions.InsertContact:
+                        _contactController.InsertContact();
                         break;
                     case MenuOptions.DeleteContact:
+                        _contactController.DeleteContact();
                         break;
                     case MenuOptions.ModifyContact:
+                        _contactController.ModifyContact();
                         break;
                     case MenuOptions.ViewContact:
+                        _contactController.ViewContact();
                         break;
                     case MenuOptions.ViewAllContacts:
+                        _contactController.ViewAllContacts();
                         break;
                     case MenuOptions.Exit:
                         isRunning = false;
                         break;
                 }
             }
-        }
-
-        public void InsertContact()
-        {
-
-        }
-
-        public void DeleteContact()
-        {
-
-        }
-
-        public void ModifyContact()
-        {
-
-        }
-
-        public void ViewContact()
-        {
-
-        }
-
-        public void ViewAllContacts()
-        {
-
         }
     }
 }
