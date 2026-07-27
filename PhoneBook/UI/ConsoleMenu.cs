@@ -42,10 +42,10 @@ namespace PhoneBook.UI
                 switch (choice)
                 {
                     case MenuOptions.InsertContact:
-                        _contactController.InsertContact();
+                        _contactController.InsertContactAsync();
                         break;
                     case MenuOptions.DeleteContact:
-                        _contactController.DeleteContact();
+                        _contactController.DeleteContactAsync();
                         break;
                     case MenuOptions.ModifyContact:
                         _contactController.ModifyContact();
@@ -61,6 +61,19 @@ namespace PhoneBook.UI
                         break;
                 }
             }
+        }
+
+        private string PromptValidated(string promptText, Func<string, bool> isValid)
+        {
+            string input;
+            do
+            {
+                input = AnsiConsole.Ask<string>(promptText);
+                if (!isValid(input))
+                    AnsiConsole.MarkupLine("[red]Invalid input, please try again.[/]");
+            } while (!isValid(input));
+
+            return input;
         }
     }
 }

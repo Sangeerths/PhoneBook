@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PhoneBook.Repository;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,14 +7,20 @@ namespace PhoneBook.Services
 {
     public class ContactService
     {
-        internal void DeleteContactAsync()
+        private readonly PhoneBookContext _phoneBookContext;
+
+        public ContactService()
         {
-            throw new NotImplementedException();
+            _phoneBookContext = new PhoneBookContext();
+        }
+        internal async Task DeleteContactAsync()
+        {
+            
         }
 
         internal void InsertContactAsync()
         {
-            throw new NotImplementedException();
+            
         }
 
         internal void ModifyContactAsync()
