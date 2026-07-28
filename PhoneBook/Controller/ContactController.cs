@@ -22,6 +22,8 @@ namespace PhoneBook.Controller
             try
             {
                 await _contactService.InsertContactAsync(contact);
+                _consoleUI.ShowSuccess("[green]Contact inserted successfully.[/]");
+                _consoleUI.Pause();
             }
             catch (Exception ex)
             {
@@ -35,6 +37,8 @@ namespace PhoneBook.Controller
             try
             {
                await _contactService.DeleteContactAsync(id);
+                _consoleUI.ShowSuccess("[green]Contact Deleted successfully.[/]");
+                _consoleUI.Pause();
             }
             catch (Exception ex)
             {
@@ -48,6 +52,8 @@ namespace PhoneBook.Controller
             try
             {
                await _contactService.ModifyContactAsync(contact);
+                _consoleUI.ShowSuccess("[green]Contact Modified successfully.[/]");
+                _consoleUI.Pause();
             }
             catch (Exception ex)
             {
@@ -61,6 +67,7 @@ namespace PhoneBook.Controller
             try
             {
                 _contactService.ViewContactAsync();
+                _consoleUI.Pause();
             }
             catch (Exception ex)
             {

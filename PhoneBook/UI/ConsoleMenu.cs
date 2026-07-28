@@ -1,12 +1,7 @@
 ﻿using PhoneBook.Controller;
 using PhoneBook.Models;
-using PhoneBook.Services;
 using PhoneBook.Validation;
 using Spectre.Console;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml.Serialization;
 
 namespace PhoneBook.UI
 {
@@ -47,34 +42,29 @@ namespace PhoneBook.UI
                 switch (choice)
                 {
                     case MenuOptions.InsertContact:
-                        var contact = NewContactPrompt();
-                       await _contactController.InsertContactAsync(contact);
-                        _consoleUI.Pause();
+                        await NewContactPrompt();  
                         break;
                     case MenuOptions.DeleteContact:
                         await DeleteContactFlowAsync();
-                        _consoleUI.Pause();
                         break;
                     case MenuOptions.ModifyContact:
                         await ModifyContactFlowAsync();
-                        _consoleUI.Pause();
                         break;
                     case MenuOptions.ViewContact:
                         await ViewContactFlowAsync();
-                        _consoleUI.Pause();
                         break;
                     case MenuOptions.ViewAllContacts:
                         await ViewAllContactsFlowAsync();
-                        _consoleUI.Pause();
                         break;
                     case MenuOptions.Exit:
                         isRunning = false;
+                        _consoleUI.ShowGoodbye();
                         break;
                 }
             }
         }
 
-        private Contact NewContactPrompt()
+        private async Task NewContactPrompt()
         {
             var contact = new Contact
             {
@@ -108,7 +98,7 @@ namespace PhoneBook.UI
                 });
             }
 
-            return contact;
+            await _contactController.InsertContactAsync(contact);
         }
 
         private async Task DeleteContactFlowAsync()
@@ -121,6 +111,7 @@ namespace PhoneBook.UI
             if (matches.Count == 0)
             {
                 AnsiConsole.MarkupLine("[yellow]No matching contact found.[/]");
+                _consoleUI.Pause();
                 return;
             }
 
@@ -146,6 +137,7 @@ namespace PhoneBook.UI
             if (!confirm)
             {
                 AnsiConsole.MarkupLine("[grey]Delete cancelled.[/]");
+                _consoleUI.Pause();
                 return;
             }
 
@@ -162,6 +154,7 @@ namespace PhoneBook.UI
             if (matches.Count == 0)
             {
                 AnsiConsole.MarkupLine("[yellow]No matching contact found.[/]");
+                _consoleUI.Pause();
                 return;
             }
 
@@ -182,7 +175,7 @@ namespace PhoneBook.UI
             }
 
             AnsiConsole.MarkupLine("[grey]Current details:[/]");
-            // DisplayContact(contact); // if you've built this helper already
+            DisplayContacts(new List<Contact> { contact }); 
 
             var fieldsToUpdate = AnsiConsole.Prompt(
                 new MultiSelectionPrompt<string>()
@@ -192,6 +185,7 @@ namespace PhoneBook.UI
             if (fieldsToUpdate.Count == 0)
             {
                 AnsiConsole.MarkupLine("[yellow]No changes selected.[/]");
+                _consoleUI.Pause();
                 return;
             }
 
@@ -259,6 +253,7 @@ namespace PhoneBook.UI
             if (matches.Count == 0)
             {
                 AnsiConsole.MarkupLine("[yellow]No matching contact found.[/]");
+                _consoleUI.Pause();
                 return;
             }
 
@@ -279,12 +274,14 @@ namespace PhoneBook.UI
             }
 
             DisplayContacts(new List<Contact> { contact });
+            _consoleUI.Pause();
         }
 
         private async Task ViewAllContactsFlowAsync()
         {
             var contacts = await _contactController.ViewAllContacts();
             DisplayContacts(contacts);
+            _consoleUI.Pause();
         }
 
         private void DisplayContacts(List<Contact> contacts)
@@ -292,35 +289,49 @@ namespace PhoneBook.UI
             if (contacts.Count == 0)
             {
                 AnsiConsole.MarkupLine("[yellow]No contacts found.[/]");
+                _consoleUI.Pause();
                 return;
             }
 
-            var table = new Table().Border(TableBorder.Rounded);
-            table.AddColumn("Id");
-            table.AddColumn("Name");
-            table.AddColumn("Organization");
-            table.AddColumn("Job Title");
-            table.AddColumn("Phone(s)");
-            table.AddColumn("Email(s)");
-            table.AddColumn("Notes");
+            var table = new Table()
+                .Border(TableBorder.Rounded)
+                .BorderColor(Color.Aqua)
+                .Title("[bold cyan]Contact Details[/]")
+                .ShowRowSeparators()
+
+                .Expand();
+
+            table.AddColumn(new TableColumn("[bold]Id[/]").Centered());
+            table.AddColumn(new TableColumn("[bold]Name[/]"));
+            table.AddColumn(new TableColumn("[bold]Organization[/]"));
+            table.AddColumn(new TableColumn("[bold]Job Title[/]"));
+            table.AddColumn(new TableColumn("[bold]Phone(s)[/]"));
+            table.AddColumn(new TableColumn("[bold]Email(s)[/]"));
+            table.AddColumn(new TableColumn("[bold]Notes[/]"));
 
             foreach (var contact in contacts)
             {
-                var phones = string.Join(", ", contact.PhoneNumbers.ConvertAll(p => $"{p.Number} ({p.Label})"));
-                var emails = string.Join(", ", contact.Emails.ConvertAll(e => $"{e.EmailAddress} ({e.Label})"));
+                var phones = contact.PhoneNumbers.Count > 0
+                    ? string.Join("\n", contact.PhoneNumbers.ConvertAll(p => $"[grey]{p.Label}:[/] {p.Number}"))
+                    : "[grey]-[/]";
+
+                var emails = contact.Emails.Count > 0
+                    ? string.Join("\n", contact.Emails.ConvertAll(e => $"[grey]{e.Label}:[/] {e.EmailAddress}"))
+                    : "[grey]-[/]";
 
                 table.AddRow(
-                    contact.Id.ToString(),
-                    $"{contact.FirstName} {contact.LastName}",
-                    contact.OrganizationName ?? "-",
-                    contact.JobTitle ?? "-",
-                    string.IsNullOrEmpty(phones) ? "-" : phones,
-                    string.IsNullOrEmpty(emails) ? "-" : emails,
-                    contact.Notes ?? "-"
+                    $"[aqua]{contact.Id}[/]",
+                    $"[bold]{contact.FirstName} {contact.LastName}[/]",
+                    contact.OrganizationName ?? "[grey]-[/]",
+                    contact.JobTitle ?? "[grey]-[/]",
+                    phones,
+                    emails,
+                    contact.Notes ?? "[grey]-[/]"
                 );
             }
 
             AnsiConsole.Write(table);
+            AnsiConsole.MarkupLine($"[grey]{contacts.Count} contact(s) found.[/]");
         }
 
         private LabelType PromptForLabelType()
