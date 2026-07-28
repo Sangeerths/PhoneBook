@@ -1,4 +1,5 @@
-﻿using PhoneBook.Repository;
+﻿using PhoneBook.Models;
+using PhoneBook.Repository;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -18,9 +19,10 @@ namespace PhoneBook.Services
             
         }
 
-        internal void InsertContactAsync()
+        internal async Task InsertContactAsync(Contact contact)
         {
-            
+            _phoneBookContext.Contacts.Add(contact);
+            await _phoneBookContext.SaveChangesAsync();
         }
 
         internal void ModifyContactAsync()

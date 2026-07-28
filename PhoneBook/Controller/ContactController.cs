@@ -1,4 +1,5 @@
-﻿using PhoneBook.Services;
+﻿using PhoneBook.Models;
+using PhoneBook.Services;
 using PhoneBook.UI;
 using System;
 using System.Collections.Generic;
@@ -16,11 +17,11 @@ namespace PhoneBook.Controller
             _contactService = new ContactService();
             _consoleUI = new ConsoleUI();
         }
-        internal async Task InsertContactAsync()
+        internal async Task InsertContactAsync(Contact contact)
         {
             try
             {
-                _contactService.InsertContactAsync();
+                await _contactService.InsertContactAsync(contact);
             }
             catch (Exception ex)
             {
