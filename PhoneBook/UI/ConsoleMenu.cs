@@ -1,7 +1,9 @@
 ﻿using PhoneBook.Controller;
+using PhoneBook.Messaging;
 using PhoneBook.Models;
 using PhoneBook.Validation;
 using Spectre.Console;
+using System.Threading.Channels;
 
 namespace PhoneBook.UI
 {
@@ -9,6 +11,7 @@ namespace PhoneBook.UI
     {
         private readonly ContactController _contactController;
         private readonly ConsoleUI _consoleUI;
+        private readonly MessageSender _messageSender;
         private enum MenuOptions
         {
             InsertContact,
@@ -16,6 +19,7 @@ namespace PhoneBook.UI
             ModifyContact,
             ViewContact,
             ViewAllContacts,
+            SendMessage,
             Exit
         }
 
@@ -23,6 +27,7 @@ namespace PhoneBook.UI
         {
             _contactController = new ContactController();
             _consoleUI = new ConsoleUI();
+            _messageSender = new MessageSender();
         }
 
         public async Task OnStart()
@@ -37,6 +42,7 @@ namespace PhoneBook.UI
                     MenuOptions.ModifyContact,
                     MenuOptions.ViewContact,
                     MenuOptions.ViewAllContacts,
+                    MenuOptions.SendMessage,
                     MenuOptions.Exit));
 
                 switch (choice)
@@ -55,6 +61,9 @@ namespace PhoneBook.UI
                         break;
                     case MenuOptions.ViewAllContacts:
                         await ViewAllContactsFlowAsync();
+                        break;
+                    case MenuOptions.SendMessage:
+                        await SendMessageFlowAsync();
                         break;
                     case MenuOptions.Exit:
                         isRunning = false;
@@ -341,6 +350,54 @@ namespace PhoneBook.UI
                     .Title("Select [green]label type[/]:")
                     .AddChoices(Enum.GetValues<LabelType>()));
         }
+
+        private async Task SendMessageFlowAsync()
+        {
+            var firstName = AnsiConsole.Ask<string>("Enter [green]first name[/]:");
+            var lastName = AnsiConsole.Ask<string>("Enter [green]last name[/]:");
+
+            var matches = await _contactController.SearchByNameAsync(firstName, lastName);
+            if (matches.Count == 0)
+            {
+                AnsiConsole.MarkupLine("[yellow]No matching contact found.[/]");
+                _consoleUI.Pause();
+                return;
+            }
+
+            var contact = matches.Count == 1 ? matches[0] : AnsiConsole.Prompt(
+                new SelectionPrompt<Contact>().Title("Select the contact:")
+                    .UseConverter(c => $"{c.FirstName} {c.LastName}").AddChoices(matches));
+
+            var channel = AnsiConsole.Prompt(
+                new SelectionPrompt<MessageChannel>().Title("Send via:")
+                    .AddChoices(MessageChannel.Email, MessageChannel.Sms));
+
+            string recipient = channel == MessageChannel.Email
+                ? contact.Emails.FirstOrDefault()?.EmailAddress ?? ""
+                : contact.PhoneNumbers.FirstOrDefault()?.Number ?? "";
+
+            if (string.IsNullOrEmpty(recipient))
+            {
+                AnsiConsole.MarkupLine($"[yellow]No {channel} found for this contact.[/]");
+                _consoleUI.Pause();
+                return;
+            }
+
+            var subject = channel == MessageChannel.Email ? AnsiConsole.Ask<string>("Enter [green]subject[/]:") : "";
+            var body = AnsiConsole.Ask<string>("Enter [green]message[/]:");
+
+            try
+            {
+                await MessageSender.SendAsync(channel, recipient, subject, body);
+                _consoleUI.ShowSuccess($"[green]{channel} sent successfully.[/]");
+            }
+            catch (Exception ex)
+            {
+                _consoleUI.ShowError(ex.Message);
+            }
+            _consoleUI.Pause();
+        }
+
         private string PromptValidated(string promptText, Func<string, bool> isValid)
         {
             string input;
