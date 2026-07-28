@@ -18,10 +18,7 @@ namespace PhoneBook.Services
         internal async Task DeleteContactAsync(int id)
         {
             var contact = await _phoneBookContext.Contacts.FindAsync(id);
-            if (contact is null)
-                throw new InvalidOperationException($"No contact found with Id {id}.");
-
-            _phoneBookContext.Contacts.Remove(contact);
+            _phoneBookContext.Contacts.Remove(contact!);
             await _phoneBookContext.SaveChangesAsync();
         }
 
