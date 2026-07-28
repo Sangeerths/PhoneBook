@@ -30,11 +30,11 @@ namespace PhoneBook.Controller
             }
         }
 
-        internal async Task DeleteContactAsync()
+        internal async Task DeleteContactAsync(int id)
         {
             try
             {
-                _contactService.DeleteContactAsync();
+               await _contactService.DeleteContactAsync(id);
             }
             catch (Exception ex)
             {
@@ -43,11 +43,11 @@ namespace PhoneBook.Controller
             }
         }
 
-        internal async Task ModifyContact()
+        internal async Task ModifyContact(Contact contact)
         {
             try
             {
-                _contactService.ModifyContactAsync();
+               await _contactService.ModifyContactAsync(contact);
             }
             catch (Exception ex)
             {
@@ -69,18 +69,32 @@ namespace PhoneBook.Controller
             }
         }
 
-        internal async Task ViewAllContacts()
+        internal async Task<List<Contact>> ViewAllContacts()
         {
             try
             {
-                _contactService.ViewAllContactAsync();
+                return await _contactService.ViewAllContactAsync();
             }
             catch (Exception ex)
             {
                 _consoleUI.ShowError(ex.Message);
                 _consoleUI.Pause();
+                return new List<Contact>();
             }
         }
 
+        internal async Task<List<Contact>> SearchByNameAsync(string firstName, string lastName)
+        {
+            try
+            {
+                return await _contactService.SearchByNameAsync(firstName, lastName);
+            }
+            catch (Exception ex)
+            {
+                _consoleUI.ShowError(ex.Message);
+                _consoleUI.Pause();
+                return new List<Contact>();
+            }
+        }
     }
 }

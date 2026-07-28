@@ -1,4 +1,5 @@
-﻿using PhoneBook.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using PhoneBook.Models;
 using PhoneBook.Repository;
 using System;
 using System.Collections.Generic;
@@ -14,9 +15,14 @@ namespace PhoneBook.Services
         {
             _phoneBookContext = new PhoneBookContext();
         }
-        internal async Task DeleteContactAsync()
+        internal async Task DeleteContactAsync(int id)
         {
-            
+            var contact = await _phoneBookContext.Contacts.FindAsync(id);
+            if (contact is null)
+                throw new InvalidOperationException($"No contact found with Id {id}.");
+
+            _phoneBookContext.Contacts.Remove(contact);
+            await _phoneBookContext.SaveChangesAsync();
         }
 
         internal async Task InsertContactAsync(Contact contact)
@@ -25,14 +31,34 @@ namespace PhoneBook.Services
             await _phoneBookContext.SaveChangesAsync();
         }
 
-        internal void ModifyContactAsync()
+        public async Task ModifyContactAsync(Contact contact)
         {
-            throw new NotImplementedException();
+            contact.UpdatedAt = DateTime.UtcNow;
+
+            bool exists = await _phoneBookContext.Contacts.AnyAsync(c => c.Id == contact.Id);
+            if (!exists)
+                throw new InvalidOperationException($"No contact found with Id {contact.Id}.");
+
+            _phoneBookContext.Contacts.Update(contact);
+            await _phoneBookContext.SaveChangesAsync();
         }
 
-        internal void ViewAllContactAsync()
+        internal async Task<List<Contact>> SearchByNameAsync(string firstName, string lastName)
         {
-            throw new NotImplementedException();
+            return await _phoneBookContext.Contacts
+         .Include(c => c.PhoneNumbers)
+         .Include(c => c.Emails)
+         .Where(c => c.FirstName.ToLower() == firstName.ToLower()
+                  && c.LastName.ToLower() == lastName.ToLower())
+         .ToListAsync();
+        }
+
+        internal async Task<List<Contact>> ViewAllContactAsync()
+        {
+            return await _phoneBookContext.Contacts
+        .Include(c => c.PhoneNumbers)
+        .Include(c => c.Emails)
+        .ToListAsync();
         }
 
         internal void ViewContactAsync()
