@@ -2,5 +2,5 @@
 using PhoneBook.UI;
 
 Env.Load();
-ConsoleMenu menu = new ConsoleMenu();
+ConsoleMenu menu = new();
 await menu.OnStart();
