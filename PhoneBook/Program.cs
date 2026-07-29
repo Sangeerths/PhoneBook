@@ -1,4 +1,6 @@
-﻿using PhoneBook.UI;
+﻿using DotNetEnv;
+using PhoneBook.UI;
 
-ConsoleMenu menu = new ConsoleMenu();
+Env.Load();
+ConsoleMenu menu = new();
 await menu.OnStart();

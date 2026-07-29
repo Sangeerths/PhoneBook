@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace PhoneBook.Models;
 
-namespace PhoneBook.Models
+public enum LabelType
 {
-    public enum LabelType
-    {
-        Mobile,
-        Home,
-        Work,
-        Other
-    }
+    Mobile,
+    Home,
+    Work,
+    Other
 }

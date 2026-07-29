@@ -1,107 +1,88 @@
 ﻿using PhoneBook.Models;
 using PhoneBook.Services;
 using PhoneBook.UI;
-using System;
-using System.Collections.Generic;
-using System.Text;
+namespace PhoneBook.Controller;
 
-namespace PhoneBook.Controller
+public class ContactController
 {
-    public class ContactController
+    private readonly ContactService _contactService;
+    private readonly ConsoleUI _consoleUI;
+
+    public ContactController()
     {
-        private readonly ContactService _contactService;
-        private readonly ConsoleUI _consoleUI;
-
-        public ContactController()
+        _contactService = new ContactService();
+        _consoleUI = new ConsoleUI();
+    }
+    internal async Task InsertContactAsync(Contact contact)
+    {
+        try
         {
-            _contactService = new ContactService();
-            _consoleUI = new ConsoleUI();
+            await _contactService.InsertContactAsync(contact);
+            _consoleUI.ShowSuccess("[green]Contact inserted successfully.[/]");
+            _consoleUI.Pause();
         }
-        internal async Task InsertContactAsync(Contact contact)
+        catch (Exception ex)
         {
-            try
-            {
-                await _contactService.InsertContactAsync(contact);
-                _consoleUI.ShowSuccess("[green]Contact inserted successfully.[/]");
-                _consoleUI.Pause();
-            }
-            catch (Exception ex)
-            {
-                _consoleUI.ShowError(ex.Message);
-                _consoleUI.Pause();
-            }
+            _consoleUI.ShowError(ex.Message);
+            _consoleUI.Pause();
         }
+    }
 
-        internal async Task DeleteContactAsync(int id)
+    internal async Task DeleteContactAsync(int id)
+    {
+        try
         {
-            try
-            {
-               await _contactService.DeleteContactAsync(id);
-                _consoleUI.ShowSuccess("[green]Contact Deleted successfully.[/]");
-                _consoleUI.Pause();
-            }
-            catch (Exception ex)
-            {
-                _consoleUI.ShowError(ex.Message);
-                _consoleUI.Pause();
-            }
+           await _contactService.DeleteContactAsync(id);
+            _consoleUI.ShowSuccess("[green]Contact Deleted successfully.[/]");
+            _consoleUI.Pause();
         }
-
-        internal async Task ModifyContact(Contact contact)
+        catch (Exception ex)
         {
-            try
-            {
-               await _contactService.ModifyContactAsync(contact);
-                _consoleUI.ShowSuccess("[green]Contact Modified successfully.[/]");
-                _consoleUI.Pause();
-            }
-            catch (Exception ex)
-            {
-                _consoleUI.ShowError(ex.Message);
-                _consoleUI.Pause();
-            }
+            _consoleUI.ShowError(ex.Message);
+            _consoleUI.Pause();
         }
+    }
 
-        internal async Task ViewContact()
+    internal async Task ModifyContact(Contact contact)
+    {
+        try
         {
-            try
-            {
-                _contactService.ViewContactAsync();
-                _consoleUI.Pause();
-            }
-            catch (Exception ex)
-            {
-                _consoleUI.ShowError(ex.Message);
-                _consoleUI.Pause();
-            }
+           await _contactService.ModifyContactAsync(contact);
+            _consoleUI.ShowSuccess("[green]Contact Modified successfully.[/]");
+            _consoleUI.Pause();
         }
-
-        internal async Task<List<Contact>> ViewAllContacts()
+        catch (Exception ex)
         {
-            try
-            {
-                return await _contactService.ViewAllContactAsync();
-            }
-            catch (Exception ex)
-            {
-                _consoleUI.ShowError(ex.Message);
-                _consoleUI.Pause();
-                return new List<Contact>();
-            }
+            _consoleUI.ShowError(ex.Message);
+            _consoleUI.Pause();
         }
+    }
 
-        internal async Task<List<Contact>> SearchByNameAsync(string firstName, string lastName)
+    internal async Task<List<Contact>> ViewAllContacts()
+    {
+        try
         {
-            try
-            {
-                return await _contactService.SearchByNameAsync(firstName, lastName);
-            }
-            catch (Exception ex)
-            {
-                _consoleUI.ShowError(ex.Message);
-                _consoleUI.Pause();
-                return new List<Contact>();
-            }
+            return await _contactService.ViewAllContactAsync();
+        }
+        catch (Exception ex)
+        {
+            _consoleUI.ShowError(ex.Message);
+            _consoleUI.Pause();
+            return new List<Contact>();
+        }
+    }
+
+    internal async Task<List<Contact>> SearchByNameAsync(string firstName, string lastName)
+    {
+        try
+        {
+            return await _contactService.SearchByNameAsync(firstName, lastName);
+        }
+        catch (Exception ex)
+        {
+            _consoleUI.ShowError(ex.Message);
+            _consoleUI.Pause();
+            return new List<Contact>();
         }
     }
 }

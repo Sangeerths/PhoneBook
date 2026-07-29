@@ -1,38 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace PhoneBook.Validation;
 
-namespace PhoneBook.Validation
+public class InputValidator
 {
-    public class InputValidator
+    public InputValidator() { }
+
+    public static bool IsValidName(string input)
     {
-        public InputValidator() { }
-
-        public static bool IsValidName(string input)
+        if(!string.IsNullOrWhiteSpace(input) && input.Length <=100)
         {
-            if(!string.IsNullOrWhiteSpace(input) && input.Length <=100)
-            {
-                return true;
-            }
-            return false;
+            return true;
         }
+        return false;
+    }
 
-        public static bool IsValidPhoneNumber(string input)
+    public static bool IsValidPhoneNumber(string input)
+    {
+        if(!string.IsNullOrWhiteSpace(input) && System.Text.RegularExpressions.Regex.IsMatch(input, @"^\+?[0-9\-\s]{7,15}$"))
         {
-            if(!string.IsNullOrWhiteSpace(input) && System.Text.RegularExpressions.Regex.IsMatch(input, @"^\+?[0-9\-\s]{7,15}$"))
-            {
-                return true;
-            }
-            return false;
+            return true;
         }
+        return false;
+    }
 
-        public static bool IsValidEmail(string input)
+    public static bool IsValidEmail(string input)
+    {
+        if(!string.IsNullOrWhiteSpace(input) && System.Text.RegularExpressions.Regex.IsMatch(input, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
         {
-            if(!string.IsNullOrWhiteSpace(input) && System.Text.RegularExpressions.Regex.IsMatch(input, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
-            {
-                return true;
-            }
-            return false;
+            return true;
         }
+        return false;
     }
 }
