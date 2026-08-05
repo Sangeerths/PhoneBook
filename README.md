@@ -6,18 +6,6 @@ A console-based contact management application built with **C# / .NET**, **Spect
 ![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)
 ![UI](https://img.shields.io/badge/UI-Spectre.Console-00ADD8)
 
-## Table of Contents
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Data Model](#data-model)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Setup](#setup)
-- [Configuration](#configuration)
-  - [Mailgun Setup (Email)](#mailgun-setup-email)
-  - [Twilio Setup (SMS)](#twilio-setup-sms)
-- [Usage](#usage)
 
 ## Features
 - **Insert Contact** — Add a new contact with first/last name, organization, job title, notes, one or more phone numbers, and one or more email addresses, each with a label (Mobile, Home, Work, Other). Shows a review summary and asks for confirmation before saving.
@@ -135,3 +123,22 @@ On launch, you'll see the main menu with the following options:
 - **View All Contacts** — Display every contact in the database.
 - **Send Message** — Search for a contact, choose Email or SMS, and send a message using their stored details.
 - **Exit** — Close the application.
+
+- ## Architectural Choices
+
+- **Layered structure** (Controller → Services → Repository → Models) separates
+  console I/O, business logic, and data access, so each can be tested or changed
+  independently.
+- **Controller layer** orchestrates calls to services and handles success/error
+  UI feedback, keeping menu navigation (`ConsoleMenu`) separate from business
+  rules (`ContactService`).
+- **DTOs avoided for this console-only app** — since there's no external API
+  consumer, entities are used directly; this reduces mapping overhead while
+  still keeping validation (`InputValidator`) as a separate concern.
+- **Messaging (`MessageSender`)** is isolated behind its own module so Email
+  (Mailgun) and SMS (Twilio) providers could be swapped without touching
+  `ContactService` or the UI layer.
+
+## Reflection
+
+Working on the messaging and email features was a new experience for me.t took some time to understand the difference between an API key and an auth token, and why my test emails/SMS weren't sending at first. I eventually learned that free-tier accounts have restrictions — Mailgun sandbox domains only send to pre-authorized recipients, and Twilio trial accounts only send SMS to verified numbers. Once I understood that, the integration made a lot more sense.
