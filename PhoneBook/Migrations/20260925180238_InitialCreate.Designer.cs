@@ -12,15 +12,15 @@ using PhoneBook.Repository;
 namespace PhoneBook.Migrations
 {
     [DbContext(typeof(PhoneBookContext))]
-    [Migration("20260730164125_InitalCreate")]
-    partial class InitalCreate
+    [Migration("20260925180238_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.10")
+                .HasAnnotation("ProductVersion", "10.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
