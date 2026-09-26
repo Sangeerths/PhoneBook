@@ -16,7 +16,20 @@ A console-based contact management application built with **C# / .NET**, **Spect
 - **Send Message** — Search for a contact and send them a message via Email or SMS, using their stored contact info.
 - **Input Validation** — Names, phone numbers, and email addresses are validated before being accepted.
 - **Styled Terminal UI** — Color-coded headers, panels, and tables powered by Spectre.Console.
-
+## Reports
+ 
+The app can export all contact data — Contacts, Phone Numbers, and Emails — as a report, and can also seed the database from an existing file.
+ 
+- **Excel Report** — Generates a `.xlsx` file with a separate worksheet for `Contacts`, `PhoneNumbers`, and `Emails`, built with [ClosedXML](https://github.com/ClosedXML/ClosedXML).
+- **PDF Report** — Generates a `.pdf` file with a dedicated section/table for `Contacts`, `PhoneNumbers`, and `Emails`, built with [QuestPDF](https://www.questpdf.com/), and saves it to a `Reports/` folder alongside the app.
+- **CSV Import (Seeding)** — On startup, `PhoneBookContext.SeedDataFromExcel()` seeds the database from `PhoneBookSeedData.csv` (or `.xls`/`.xlsx`), reading it with [CsvHelper](https://joshclose.github.io/CsvHelper/) or [ExcelDataReader](https://github.com/ExcelDataReader/ExcelDataReader) depending on the file extension. The CSV must include these columns:
+```
+  ContactId, FirstName, LastName, OrganizationName, JobTitle, Notes, CreatedAt,
+  PhoneNumber, PhoneLabel, PhoneCreatedAt,
+  EmailAddress, EmailLabel, EmailCreatedAt, EmailUpdatedAt
+```
+ 
+  Place the file in the project directory and set its **Copy to Output Directory** property to *Copy if newer* so it's available at runtime.
 ## Tech Stack
 | Layer | Technology |
 |---|---|
