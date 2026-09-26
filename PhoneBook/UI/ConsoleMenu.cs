@@ -8,6 +8,7 @@ namespace PhoneBook.UI;
 public class ConsoleMenu
 {
     private readonly ContactController _contactController;
+    private readonly ReportController _reportController;
     private readonly ConsoleUI _consoleUI;
     private enum MenuOptions
     {
@@ -17,6 +18,7 @@ public class ConsoleMenu
         ViewContact,
         ViewAllContacts,
         SendMessage,
+        Report,
         Exit
     }
 
@@ -24,6 +26,7 @@ public class ConsoleMenu
     {
         _contactController = new ContactController();
         _consoleUI = new ConsoleUI();
+        _reportController = new ReportController();
     }
 
     public async Task OnStart()
@@ -39,6 +42,7 @@ public class ConsoleMenu
                 MenuOptions.ViewContact,
                 MenuOptions.ViewAllContacts,
                 MenuOptions.SendMessage,
+                MenuOptions.Report,
                 MenuOptions.Exit));
 
             switch (choice)
@@ -60,6 +64,9 @@ public class ConsoleMenu
                     break;
                 case MenuOptions.SendMessage:
                     await SendMessageFlowAsync();
+                    break;
+                case MenuOptions.Report:
+                    await _reportController.ExportPdfReportFlowAsync();
                     break;
                 case MenuOptions.Exit:
                     isRunning = false;
