@@ -53,4 +53,9 @@ public class ContactService
     .Include(c => c.Emails)
     .ToListAsync();
     }
+
+    internal void ImportContacts(string filePath)
+    {
+        _phoneBookContext.ImportDataFromFile(filePath);
+    }
 }

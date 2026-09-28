@@ -21,19 +21,28 @@ public class PhoneBookContext : DbContext
 
     public void SeedDataFromExcel()
     {
-        try
-        {
+        ImportDataFromFile("PhoneBookSeedData.csv");
+    }
+    public void ImportDataFromFile(string filepath)
+    {
+        
 
-            string filepath = "PhoneBookSeedData.csv";
             if (!File.Exists(filepath))
             {
-               throw new Exception("File not found.");
+                throw new FileNotFoundException(
+                    "The specified file was not found.",
+                    filepath);
             }
-            string extension =Path.GetExtension(filepath).ToLowerInvariant();
 
-            if (extension != ".xls" && extension != ".xlsx" && extension != ".csv")
+            string extension =
+                Path.GetExtension(filepath).ToLowerInvariant();
+
+            if (extension != ".xls" &&
+                extension != ".xlsx" &&
+                extension != ".csv")
             {
-               throw new Exception("Unsupported file format.");
+                throw new NotSupportedException(
+                    "Unsupported file format. Only .xls, .xlsx and .csv files are supported.");
             }
 
             var contacts = new List<Contact>();
@@ -349,34 +358,7 @@ public class PhoneBookContext : DbContext
                 $"Successfully imported {emails.Count} emails.");
 
             Console.WriteLine("All Excel data inserted successfully.");
-        }
-        catch (IOException ex)
-        {
-            Console.WriteLine(
-                $"Error accessing the Excel file: {ex.Message}");
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            Console.WriteLine(
-                $"Error: Access denied when accessing the Excel file or database: {ex.Message}");
-        }
-        catch (DbUpdateException ex)
-        {
-            Console.WriteLine(
-                $"Database error while saving the data: {ex.InnerException?.Message ?? ex.Message}");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(
-                $"Unexpected error: {ex.Message}");
-        }
-
-        finally
-        {
-            Console.WriteLine();
-            Console.WriteLine("Press any key to continue to the menu...");
-            Console.ReadKey();
-        }
+       
     }
 }
 

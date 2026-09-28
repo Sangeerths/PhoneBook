@@ -19,6 +19,7 @@ public class ConsoleMenu
         ViewAllContacts,
         SendMessage,
         Report,
+        ImportContacts,
         Exit
     }
 
@@ -43,6 +44,7 @@ public class ConsoleMenu
                 MenuOptions.ViewAllContacts,
                 MenuOptions.SendMessage,
                 MenuOptions.Report,
+                MenuOptions.ImportContacts,
                 MenuOptions.Exit));
 
             switch (choice)
@@ -66,7 +68,10 @@ public class ConsoleMenu
                     await SendMessageFlowAsync();
                     break;
                 case MenuOptions.Report:
-                    await _reportController.ExportPdfReportFlowAsync();
+                    await _reportController.ExportReportFlowAsync();
+                    break;
+                case MenuOptions.ImportContacts:
+                    await ImportContactsFlowAsync();
                     break;
                 case MenuOptions.Exit:
                     isRunning = false;
@@ -364,6 +369,53 @@ public class ConsoleMenu
 
         AnsiConsole.Write(table);
         AnsiConsole.MarkupLine($"[grey]{contacts.Count} contact(s) found.[/]");
+    }
+
+    private async Task ImportContactsFlowAsync()
+    {
+        AnsiConsole.MarkupLine("[bold cyan]Import Contacts[/]");
+
+        AnsiConsole.MarkupLine("[grey]Supported formats: .csv, .xls, .xlsx[/]");
+
+        string filePath = AnsiConsole.Ask<string>("Enter the [green]file path[/]:");
+        filePath = filePath.Trim().Trim('"');
+
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
+            AnsiConsole.MarkupLine("[red]File path cannot be empty.[/]");
+            _consoleUI.Pause();
+            return;
+        }
+
+        if (!File.Exists(filePath))
+        {
+            AnsiConsole.MarkupLine("[red]File not found.[/]");
+            AnsiConsole.MarkupLine( $"[grey]Path:[/] {filePath}");
+            _consoleUI.Pause();
+            return;
+        }
+
+        string extension = Path.GetExtension(filePath).ToLowerInvariant();
+
+        if (extension != ".csv" &&extension != ".xls" && extension != ".xlsx")
+        {
+            AnsiConsole.MarkupLine("[red]Unsupported file format.[/]");
+            AnsiConsole.MarkupLine("[grey]Supported formats: .csv, .xls, .xlsx[/]");
+            _consoleUI.Pause();
+            return;
+        }
+
+        AnsiConsole.MarkupLine($"[green]File found:[/] {Path.GetFileName(filePath)}");
+        bool confirm = AnsiConsole.Confirm("Do you want to import this file?",true);
+
+        if (!confirm)
+        {
+            AnsiConsole.MarkupLine( "[grey]Import cancelled.[/]");
+            _consoleUI.Pause();
+            return;
+        }
+
+        _contactController.ImportContacts(filePath);
     }
 
     private LabelType PromptForLabelType()
