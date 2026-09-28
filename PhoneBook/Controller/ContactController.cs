@@ -85,4 +85,38 @@ public class ContactController
             return new List<Contact>();
         }
     }
+    internal void ImportContacts(string filePath)
+    {
+        try
+        {
+            _contactService.ImportContacts(filePath);
+            _consoleUI.ShowSuccess("[green]Contacts imported successfully.[/]");
+            _consoleUI.Pause();
+        }
+        catch (FileNotFoundException)
+        {
+            _consoleUI.ShowError("The specified file was not found.");
+            _consoleUI.Pause();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            _consoleUI.ShowError("Access denied. Check the file permissions.");
+            _consoleUI.Pause();
+        }
+        catch (NotSupportedException ex)
+        {
+            _consoleUI.ShowError(ex.Message);
+            _consoleUI.Pause();
+        }
+        catch (IOException ex)
+        {
+            _consoleUI.ShowError($"Unable to read the file: {ex.Message}");
+            _consoleUI.Pause();
+        }
+        catch (Exception ex)
+        {
+            _consoleUI.ShowError(ex.Message);
+            _consoleUI.Pause();
+        }
+    }
 }

@@ -1,10 +1,8 @@
-﻿using PhoneBook.Models;
+﻿using ClosedXML.Excel;
+using PhoneBook.Models;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PhoneBook.Services
 {
@@ -14,15 +12,19 @@ namespace PhoneBook.Services
         {
             QuestPDF.Settings.License = LicenseType.Community;
         }
-        public string GenerateContactsReport(List<Contact> contacts)
+        private static string GetReportsFolder()
         {
-           
             var projectFolder = Directory.GetParent(AppContext.BaseDirectory)!
                                           .Parent!.Parent!.Parent!.FullName;
 
             var reportsFolder = Path.Combine(projectFolder, "Reports");
-
             Directory.CreateDirectory(reportsFolder);
+            return reportsFolder;
+        }
+
+        public string GenerateContactsReport(List<Contact> contacts)
+        {
+            var reportsFolder = GetReportsFolder();
 
             var fileName = $"PhoneBookReport_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
             var filePath = Path.Combine(reportsFolder, fileName);
@@ -116,6 +118,51 @@ namespace PhoneBook.Services
                 });
             })
             .GeneratePdf(filePath);
+
+            return filePath;
+        }
+
+        public string GenerateContactsExcelReport(List<Contact> contacts)
+        {
+            var reportsFolder = GetReportsFolder();
+
+            var fileName = $"PhoneBookReport_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+            var filePath = Path.Combine(reportsFolder, fileName);
+
+            using var workbook = new XLWorkbook();
+            var worksheet = workbook.Worksheets.Add("Contacts");
+
+            string[] headers = { "Id", "Name", "Organization", "Job Title", "Phone(s)", "Email(s)" };
+            for (int i = 0; i < headers.Length; i++)
+            {
+                var cell = worksheet.Cell(1, i + 1);
+                cell.Value = headers[i];
+                cell.Style.Font.Bold = true;
+                cell.Style.Fill.BackgroundColor = XLColor.LightGray;
+            }
+
+            int row = 2;
+            foreach (var contact in contacts)
+            {
+                var phones = contact.PhoneNumbers.Count > 0
+                    ? string.Join(", ", contact.PhoneNumbers.Select(p => $"{p.Label}: {p.Number}"))
+                    : "-";
+
+                var emails = contact.Emails.Count > 0
+                    ? string.Join(", ", contact.Emails.Select(e => $"{e.Label}: {e.EmailAddress}"))
+                    : "-";
+
+                worksheet.Cell(row, 1).Value = contact.Id;
+                worksheet.Cell(row, 2).Value = $"{contact.FirstName} {contact.LastName}";
+                worksheet.Cell(row, 3).Value = contact.OrganizationName ?? "-";
+                worksheet.Cell(row, 4).Value = contact.JobTitle ?? "-";
+                worksheet.Cell(row, 5).Value = phones;
+                worksheet.Cell(row, 6).Value = emails;
+                row++;
+            }
+
+            worksheet.Columns().AdjustToContents();
+            workbook.SaveAs(filePath);
 
             return filePath;
         }

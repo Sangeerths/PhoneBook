@@ -12,14 +12,18 @@ namespace PhoneBook.Controller
         private readonly ReportService _reportService;
         private readonly ContactController _contactController;
         private readonly ConsoleUI _consoleUI;
-
+        private enum ReportType
+        {
+            Pdf,
+            Excel
+        }
         public ReportController()
         {
             _reportService = new ReportService();
             _contactController = new ContactController();
             _consoleUI = new ConsoleUI();
         }
-        public async Task ExportPdfReportFlowAsync()
+        public async Task ExportReportFlowAsync()
         {
             var contacts = await _contactController.ViewAllContacts();
             if (contacts.Count == 0)
@@ -29,7 +33,25 @@ namespace PhoneBook.Controller
                 return;
             }
 
-            var path = _reportService.GenerateContactsReport(contacts); 
+            var reportType = AnsiConsole.Prompt(
+                new SelectionPrompt<ReportType>()
+                    .Title("Which [green]report format[/] would you like?")
+                    .AddChoices(ReportType.Pdf, ReportType.Excel));
+
+            string path;
+            switch (reportType)
+            {
+                case ReportType.Pdf:
+                    path = _reportService.GenerateContactsReport(contacts);
+                    break;
+                case ReportType.Excel:
+                    path = _reportService.GenerateContactsExcelReport(contacts);
+                    break;
+                default:
+                    AnsiConsole.MarkupLine("[red]Unsupported report type.[/]");
+                    _consoleUI.Pause();
+                    return;
+            }
 
             AnsiConsole.MarkupLine($"[green]Report saved to:[/] {Path.GetFullPath(path)}");
             _consoleUI.Pause();
