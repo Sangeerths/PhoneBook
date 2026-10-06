@@ -368,3 +368,5 @@ FodyWeavers.xsd
 # Ignore build artifacts (optional but recommended for C#)
 bin/
 obj/
+.env
+**/.env
