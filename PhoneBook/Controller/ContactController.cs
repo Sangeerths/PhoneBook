@@ -13,7 +13,7 @@ public class ContactController
         _contactService = new ContactService();
         _consoleUI = new ConsoleUI();
     }
-    internal async Task InsertContactAsync(Contact contact)
+    public async Task InsertContactAsync(Contact contact)
     {
         try
         {
@@ -28,7 +28,7 @@ public class ContactController
         }
     }
 
-    internal async Task DeleteContactAsync(int id)
+    public async Task DeleteContactAsync(int id)
     {
         try
         {
@@ -43,7 +43,7 @@ public class ContactController
         }
     }
 
-    internal async Task ModifyContact(Contact contact)
+    public async Task ModifyContact(Contact contact)
     {
         try
         {
@@ -58,7 +58,7 @@ public class ContactController
         }
     }
 
-    internal async Task<List<Contact>> ViewAllContacts()
+    public async Task<List<Contact>> ViewAllContacts()
     {
         try
         {
@@ -72,7 +72,7 @@ public class ContactController
         }
     }
 
-    internal async Task<List<Contact>> SearchByNameAsync(string firstName, string lastName)
+    public async Task<List<Contact>> SearchByNameAsync(string firstName, string lastName)
     {
         try
         {
@@ -85,7 +85,7 @@ public class ContactController
             return new List<Contact>();
         }
     }
-    internal void ImportContacts(string filePath)
+    public void ImportContacts(string filePath)
     {
         try
         {

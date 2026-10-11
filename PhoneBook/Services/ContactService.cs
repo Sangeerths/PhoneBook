@@ -39,11 +39,13 @@ public class ContactService
     internal async Task<List<Contact>> SearchByNameAsync(string firstName, string lastName)
     {
         return await _phoneBookContext.Contacts
-     .Include(c => c.PhoneNumbers)
-     .Include(c => c.Emails)
-     .Where(c => c.FirstName.ToLower() == firstName.ToLower()
-              && c.LastName.ToLower() == lastName.ToLower())
-     .ToListAsync();
+            .Include(c => c.PhoneNumbers)
+            .Include(c => c.Emails)
+            // Use direct equality and rely on the database collation for case-insensitive
+            // comparisons. This avoids repeated ToLower allocations and lets SQL perform
+            // the comparison efficiently.
+            .Where(c => c.FirstName == firstName && c.LastName == lastName)
+            .ToListAsync();
     }
 
     internal async Task<List<Contact>> ViewAllContactAsync()

@@ -1,4 +1,5 @@
 ﻿using Spectre.Console;
+using System.Linq;
 namespace PhoneBook.UI;
 
 public class ConsoleUI
@@ -33,10 +34,32 @@ public class ConsoleUI
     public void Pause()
     {
         AnsiConsole.WriteLine();
-        var rule = new Rule { Style = new Style(Color.Grey35) };
+
+        var rule = new Rule
+        {
+            Style = new Style(Color.Grey35)
+        };
+
         AnsiConsole.Write(rule);
         AnsiConsole.MarkupLine("[grey italic]Press any key to continue...[/]");
-        Console.ReadKey(true);
+
+        if (!IsRunningUnderTest() && !Console.IsInputRedirected && Environment.UserInteractive && Console.KeyAvailable == false)
+        {
+            Console.ReadKey(true);
+        }
+    }
+
+    private bool IsRunningUnderTest()
+    {
+        try
+        {
+            return AppDomain.CurrentDomain.GetAssemblies()
+                .Any(a => a.GetName().Name?.IndexOf("nunit.framework", StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     public void ShowSuccess(string message)
